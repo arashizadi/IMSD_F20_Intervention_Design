@@ -36,17 +36,29 @@ public class CubeBehaviour : Bolt.EntityEventListener<ICubeState>
 
         // NEW: we also setup a callback for whenever the index changes
         state.AddCallback("WeaponActiveIndex", WeaponActiveIndexChanged);
+
+        state.Health = 100;
     }
 
     public override void SimulateOwner()
     {
         var speed = 4f;
         var movement = Vector3.zero;
+        var angle = Vector3.zero;
 
         if (Input.GetKey(KeyCode.W)) { movement.z += 1; }
         if (Input.GetKey(KeyCode.S)) { movement.z -= 1; }
         if (Input.GetKey(KeyCode.A)) { movement.x -= 1; }
         if (Input.GetKey(KeyCode.D)) { movement.x += 1; }
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
+        {
+            if (Input.GetKey(KeyCode.LeftArrow))
+                angle.y -= 25;
+            else if (Input.GetKey(KeyCode.RightArrow))
+                angle.y += 25;
+        }
+        else
+            angle.y = 0;
 
         // NEW: Input polling for weapon selection
         if (Input.GetKeyDown(KeyCode.Alpha1)) state.WeaponActiveIndex = 0;
@@ -58,6 +70,10 @@ public class CubeBehaviour : Bolt.EntityEventListener<ICubeState>
         {
             transform.position = transform.position + (movement.normalized * speed * BoltNetwork.FrameDeltaTime);
         }
+        if (angle != Vector3.zero && movement != Vector3.zero)
+            transform.Rotate(angle * speed/3 * BoltNetwork.FrameDeltaTime);
+        else if (angle != Vector3.zero)
+            transform.Rotate(angle * speed * BoltNetwork.FrameDeltaTime);
 
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -109,4 +125,6 @@ public class CubeBehaviour : Bolt.EntityEventListener<ICubeState>
             WeaponObjects[objectId].SetActive(true);
         }
     }
+
+
 }
